@@ -29,7 +29,10 @@
             "group": "API Documentation",
             "pages": [
               "api-reference/introduction",
-              "generated/redirect_n_times"
+              "generated/redirect_n_times",
+              "generated/view_put",
+              "generated/view_robots_page",
+              "generated/view_landing_page"
             ]
           },
           {
