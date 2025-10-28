@@ -1,48 +1,21 @@
 ---
 title: view_patch
-description: This function handles `PATCH` requests to the `/patch` endpoint. It inspects
-  the incoming request and returns a JSON object containing its attributes, such as
-  URL arguments, headers, form data, and any attached files or JSON payload.
+description: This endpoint handles `PATCH` requests to `/patch`. It inspects the incoming
+  request and returns a JSON object containing details about the request, including
+  the URL, query arguments, form data, raw data payload, origin IP, headers, any uploaded
+  files, and the JSON body.
 openapi: PATCH ['/patch']
 ---
 ## Summary
-This function handles `PATCH` requests to the `/patch` endpoint. It inspects the incoming request and returns a JSON object containing its attributes, such as URL arguments, headers, form data, and any attached files or JSON payload.
+This endpoint handles `PATCH` requests to `/patch`. It inspects the incoming request and returns a JSON object containing details about the request, including the URL, query arguments, form data, raw data payload, origin IP, headers, any uploaded files, and the JSON body.
 
 ## Parameters
-{% parameterField name="url" type="string" %}
-The URL of the request.
-{% /parameterField %}
-
-{% parameterField name="args" type="object" %}
-The query string arguments from the URL.
-{% /parameterField %}
-
-{% parameterField name="form" type="object" %}
-The form data submitted in the request body.
-{% /parameterField %}
-
-{% parameterField name="data" type="string" %}
-The raw data from the request body.
-{% /parameterField %}
-
-{% parameterField name="origin" type="string" %}
-The IP address of the client making the request.
-{% /parameterField %}
-
-{% parameterField name="headers" type="object" %}
-The headers sent with the request.
-{% /parameterField %}
-
-{% parameterField name="files" type="object" %}
-The files uploaded with the request.
-{% /parameterField %}
-
-{% parameterField name="json" type="object" %}
-The JSON document sent in the request body.
-{% /parameterField %}
+{% callout type="info" %}
+No parameters.
+{% /callout %}
 
 ## Returns
-`jsonify`: A function that serializes a Python dictionary into a JSON formatted `Response` object.
+`jsonify`: A Flask function that serializes a Python dictionary into a JSON formatted `Response` object.
 
 ## Usage Examples
 {% codeGroup %}
@@ -51,7 +24,7 @@ The JSON document sent in the request body.
 import requests
 
 url = "https://api.example.com/patch"
-payload = {"key": "value"}
+payload = {"name": "Updated Name"}
 
 response = requests.patch(url, json=payload)
 
@@ -59,34 +32,34 @@ print(response.json())
 ```
 
 ```javascript {% filename="JavaScript" showLineNumbers=true %}
-const data = {
-  "name": "John Doe",
-  "email": "john.doe@example.com"
-};
 
 fetch("https://api.example.com/patch", {
   method: "PATCH",
   headers: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "X-Custom-Header": "Your-Custom-Value"
   },
-  body: JSON.stringify(data)
+  body: JSON.stringify({
+    "key": "value",
+    "another_key": 123
+  })
 })
 .then(response => response.json())
 .then(data => console.log(data))
 .catch(error => console.error("Error:", error));
+
 ```
 
 ```java {% filename="Java" showLineNumbers=true %}
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class PatchExample {
-    public static void main(String[] args) throws IOException, InterruptedException {
+class PatchRequestExample {
+    public static void main(String[] args) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        String requestBody = "{\"name\": \"Jane Doe\"}";
+        String requestBody = "{\"name\": \"Updated Name\"}";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.example.com/patch"))
@@ -99,7 +72,6 @@ public class PatchExample {
         System.out.println(response.body());
     }
 }
-
 ```
 
 ```php {% filename="PHP" showLineNumbers=true %}
@@ -107,20 +79,18 @@ public class PatchExample {
 
 $curl = curl_init();
 
-$data = json_encode([
-    "name" => "John Doe",
-    "email" => "john.doe@example.com"
-]);
-
 curl_setopt_array($curl, [
-    CURLOPT_URL => "https://api.example.com/patch",
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_CUSTOMREQUEST => "PATCH",
-    CURLOPT_POSTFIELDS => $data,
-    CURLOPT_HTTPHEADER => [
-        "Content-Type: application/json",
-        "Content-Length: " . strlen($data)
-    ],
+  CURLOPT_URL => "https://api.example.com/patch",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "PATCH",
+  CURLOPT_POSTFIELDS => "{\"key\":\"value\"}",
+  CURLOPT_HTTPHEADER => [
+    "Content-Type: application/json"
+  ],
 ]);
 
 $response = curl_exec($curl);
@@ -129,9 +99,9 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-    echo "cURL Error #:" . $err;
+  echo "cURL Error #:" . $err;
 } else {
-    echo $response;
+  echo $response;
 }
 
 ```
@@ -140,36 +110,33 @@ if ($err) {
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func main() {
-	url := "https://api.example.com/patch"
-	jsonData := []byte(`{"key": "value"}`)
-
-	req, err := http.NewRequest(http.MethodPatch, url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		panic(err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
 	client := &http.Client{}
+	var data = strings.NewReader(`{"key": "value"}`)
+	req, err := http.NewRequest("PATCH", "https://api.example.com/patch", data)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return
 	}
 	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
+	bodyText, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return
 	}
-
-	fmt.Println(string(body))
+	fmt.Printf("%s\n", bodyText)
 }
 
 ```
